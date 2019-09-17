@@ -20,18 +20,23 @@ from bpy.app.handlers import persistent
 def find_objects(context):
     arm=None
     curves=[]
+    check_objects=True
     if len(context.selected_editable_objects)>=2:
         for obj in context.selected_editable_objects:
             if obj.type=='CURVE':
                 curves.append(obj)
-            if obj.type=='ARMATURE':
+            elif obj.type=='ARMATURE':
                 arm=obj
-    return curves, arm
+    if not (arm or curves):
+        check_objects=False
+    return curves, arm, check_objects
 
 def make_control_bones(context,name):
     bezier=True
     scene=context.scene
-    curves,arm=find_objects(context)
+    curves,arm, check_objects=find_objects(context)
+    if not check_objects:
+        return False
     name_index=-2
     if curves and arm:
         for curve in curves:
@@ -69,7 +74,7 @@ def make_control_bones(context,name):
                     else:
                         mod_points=(idx,)
                     mod.vertex_indices_set(mod_points)
-
+    return True
         
 
 class CALL_OT_MakeSplineBones(bpy.types.Operator):
@@ -88,8 +93,11 @@ class CALL_OT_MakeSplineBones(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        make_control_bones(context,self.name)
-        return {'FINISHED'}
+        if make_control_bones(context,self.name):
+            return {'FINISHED'}
+        else:
+            self.report(type={"ERROR_INVALID_INPUT"},message="Select an armature and at least one curve.")
+            return {'CANCELLED'}
 
 def register():
     bpy.utils.register_class(CALL_OT_MakeSplineBones)
