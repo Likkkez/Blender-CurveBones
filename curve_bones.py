@@ -43,7 +43,7 @@ def make_control_bones(context,name):
     if curves and arm:
         for curve in curves:
             name_index+=1
-            point_index=0
+            vertex_index=0
             for sp in curve.data.splines:
                 name_index+=1
                 if sp.points:
@@ -73,16 +73,16 @@ def make_control_bones(context,name):
                     mod.object=arm
                     mod.subtarget=bone.name
                     if bezier:
-                        mod_points=(point_index+0,point_index+1,point_index+2)
+                        mod_points=(vertex_index+0,vertex_index+1,vertex_index+2)
                     else:
-                        mod_points=(point_index,)
-                        print(point_index)
+                        mod_points=(vertex_index,)
+                        print(vertex_index)
                     mod.vertex_indices_set(mod_points)
                     
                     if bezier:
-                        point_index+=3 #bezier has 3 verticies per point
+                        vertex_index+=3 #bezier has 3 verticies per point
                     else:
-                        point_index+=1
+                        vertex_index+=1
     return True
         
 
