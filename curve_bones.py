@@ -26,6 +26,8 @@ def find_objects(context):
             if obj.type=='CURVE':
                 curves.append(obj)
             elif obj.type=='ARMATURE':
+                if arm: #check if more than one armature
+                    check_objects=False 
                 arm=obj
     if not (arm or curves):
         check_objects=False
@@ -34,13 +36,14 @@ def find_objects(context):
 def make_control_bones(context,name):
     bezier=True
     scene=context.scene
-    curves,arm, check_objects=find_objects(context)
+    curves,arm,check_objects=find_objects(context)
     if not check_objects:
         return False
     name_index=-2
     if curves and arm:
         for curve in curves:
             name_index+=1
+            point_index=0
             for sp in curve.data.splines:
                 name_index+=1
                 if sp.points:
@@ -49,7 +52,7 @@ def make_control_bones(context,name):
                 elif sp.bezier_points:
                     points=sp.bezier_points
                     bezier=True
-                for idx,bp in enumerate(points):
+                for bp in points:
                     context.view_layer.objects.active=arm
                     bpy.ops.object.mode_set(mode='EDIT',toggle=False)
                     name_index_str=""
@@ -70,10 +73,16 @@ def make_control_bones(context,name):
                     mod.object=arm
                     mod.subtarget=bone.name
                     if bezier:
-                        mod_points=(idx*3+0,idx*3+1,idx*3+2)
+                        mod_points=(point_index+0,point_index+1,point_index+2)
                     else:
-                        mod_points=(idx,)
+                        mod_points=(point_index,)
+                        print(point_index)
                     mod.vertex_indices_set(mod_points)
+                    
+                    if bezier:
+                        point_index+=3 #bezier has 3 verticies per point
+                    else:
+                        point_index+=1
     return True
         
 
