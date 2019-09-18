@@ -29,7 +29,7 @@ def find_objects(context):
                 if arm: #check if more than one armature
                     check_objects=False 
                 arm=obj
-    if not (arm or curves):
+    if not (arm and curves):
         check_objects=False
     return curves, arm, check_objects
 
