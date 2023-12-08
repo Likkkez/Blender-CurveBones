@@ -59,6 +59,7 @@ def make_control_bones(context,name):
                     if name_index>0:
                         name_index_str="_"+str(name_index-1)
                     bone=arm.data.edit_bones.new(name+name_index_str)
+                    ebone_name = bone.name
                     if bezier:
                         bone.head = arm.matrix_world.inverted() @ curve.matrix_world @ bp.co
                         bone.tail = arm.matrix_world.inverted() @ curve.matrix_world @ bp.handle_right
@@ -71,7 +72,7 @@ def make_control_bones(context,name):
                     
                     mod=curve.modifiers.new(name="Hook",type="HOOK")
                     mod.object=arm
-                    mod.subtarget=bone.name
+                    mod.subtarget=ebone_name
                     if bezier:
                         mod_points=(vertex_index+0,vertex_index+1,vertex_index+2)
                     else:
